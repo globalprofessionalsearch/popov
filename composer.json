@@ -1,0 +1,29 @@
+{
+    "name": "globalprofessionalsearch/popov",
+    "description": "Plain Old Php Object Factory for fixture generation.",
+    "keywords": ["testing", "factory", "fixture"],
+    "homepage": "https://github.com/globalprofessionalsearch/popov",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Evan Villemez",
+            "email": "evan@globalprofessionalsearch.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.4.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^4.8|^5.0",
+        "ac/model-traits": "^0.2"
+    },
+    "suggest": {
+        "league/factory-muffin-faker": "The Faker facade makes writing fixture definitions much easier."
+    },
+    "autoload": {
+        "psr-4": {
+            "GPS\\Popov\\": "src/",
+            "GPS\\Popov\\Tests": "tests/",
+        }
+    }
+}
