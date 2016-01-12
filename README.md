@@ -1,6 +1,6 @@
 # Popov #
 
-> travis-ci badge
+[![Build Status](https://travis-ci.org/globalprofessionalsearch/popov.svg)](https://travis-ci.org/globalprofessionalsearch/popov)
 
 > Plain Old Php Object Factory
 
