@@ -9,6 +9,7 @@ class DefinitionTest extends \PHPUnit_Framework_TestCase
     public function testInstantiate()
     {
         $def = new Definition('GPS\Popov\Tests\Example');
+        $this->assertTrue($def instanceof Definition);
     }
 
     public function testCreatePlain()

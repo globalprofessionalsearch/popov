@@ -26,7 +26,7 @@ Each example below adds to the previous one.
 
 ### Basic ###
 
-Let's assume we have users and classes, and we need to generate fake instances of each.  The example below defines two pools of objects with a preset number of instances in each.  Here we will generate 100 users and 50 groups
+Let's assume we have users and groups, and we need to generate fake instances of each.  The example below defines two pools of objects with a preset number of instances in each.  Here we will generate 100 users and 50 groups
 
 ```php
 <?php
@@ -96,7 +96,7 @@ $factory->definePool('App\AccountPrefs)->setAttrs([
 
 Nested objects are fairly straight forward, but sometimes you need objects from another pool, and you shouldn't trigger creating new ones.  For example, suppose we want all of our users to be in a group, but we don't want to create a new group for every user.  To do this, we use the factory to add a reference.  A reference is really the same thing as an attribute, but the factory resolves it *after* all pools have been initialized.  This allows you to fetch reference objects from other pools, including circular dependencies, without risking infinite loops.
 
-To add a reference to an object in another pool, we'll just use the factory facade wrap the action in a callable:
+To add a reference to an object in another pool, we'll just use the factory facade to wrap the action in a closure:
 
 ```php
 <?php
@@ -127,6 +127,8 @@ $factory
 
 ### Hooks ###
 
+  TODO...
+
 ### Hard-coded objects ###
 
 You may want 50 random objects in a pool, but you may also want a few objects that you can reference in tests which are defined explicitly by you, so you know up front what to expect.  Luckily that's easy as well.  If you have defined a pool, you can manually create new instances regardless of whether or not it will be automatically populated with a preset number.  Any manually created instances will just be added to the pool.
@@ -143,6 +145,8 @@ You can create a specific object by overriding the definition at create time:
 ```
 
 ### Example with Persistence ###
+
+  TODO...
 
 ## Contributing ##
 

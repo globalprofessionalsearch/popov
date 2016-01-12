@@ -23,7 +23,7 @@
     "autoload": {
         "psr-4": {
             "GPS\\Popov\\": "src/",
-            "GPS\\Popov\\Tests": "tests/",
+            "GPS\\Popov\\Tests\\": "tests/"
         }
     }
 }

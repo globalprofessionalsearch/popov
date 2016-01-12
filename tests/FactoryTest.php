@@ -15,6 +15,7 @@ class FactoryTest extends \PHPUnit_Framework_TestCase
     public function testInstantiate()
     {
         $f = new Factory();
+        $this->assertTrue($f instanceof Factory);
     }
 
     public function testDefinePool()

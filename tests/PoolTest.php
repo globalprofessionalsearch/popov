@@ -1,6 +1,6 @@
 <?php
 
-namespace GPS\Popov\Tests;
+namespace GPS\Popov\tests;
 
 use GPS\Popov\Definition;
 use GPS\Popov\Pool;
@@ -27,6 +27,7 @@ class PoolTest extends \PHPUnit_Framework_TestCase
     public function testInstantiate()
     {
         $pool = new Pool($this->createDefinition(), 20);
+        $this->assertTrue($pool instanceof Pool);
     }
 
     public function testFetchAll()
