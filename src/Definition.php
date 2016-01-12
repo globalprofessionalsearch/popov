@@ -3,7 +3,7 @@
 namespace GPS\Popov;
 
 /**
- * Creates instances of classes.
+ * Defines attributes and references for creating instances of classes.
  */
 class Definition
 {
@@ -15,7 +15,10 @@ class Definition
     private $after;
     private $factory;
     private $reflProperties;
-
+    
+    /**
+     * 
+     */
     public function __construct($class, $attrs = [], $constructor = null)
     {
         $this->class = $class;
@@ -25,7 +28,7 @@ class Definition
             $this->constructor = function () use ($class) { return new $class(); };
         }
     }
-
+    
     public function setFactory($factory)
     {
         $this->factory = $factory;
