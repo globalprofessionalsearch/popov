@@ -12,21 +12,27 @@ Many fixture libraries available make assumptions about the underlying storage m
 
 ## Installation ##
 
-Add it to your project with composer, and install:
+Add it to your project's composer.json:
 
 ```
-composer ...
+{
+    "require": {
+        "globalprofessionalsearch/popov": "~1.0"
+    }
+}
 ```
 
 ## Usage ##
 
-Below are usage examples, starting with the simplest, and getting more complex.  Since a fixture definition often requires the use of closures, and since Faker is so widely used for generating data points, we highly recommend using the `league/factory-muffin-faker` library in conjunction with Popov.  Most of the examples below use it, and you'll see that the use of facades greatly reduces the need to manually wrap field definitions in closures.
+Below are usage examples, starting with the simplest, and increasing in complexity.  Since a fixture definition often requires the use of closures, and since Faker is so widely used for generating data points, we highly recommend using the `league/factory-muffin-faker` library in conjunction with Popov.  Most of the examples below use it, and you'll see that the use of facades greatly reduces the need to manually wrap field definitions in closures.
+
+The examples below show defining pools of fictional classes that may be in an application.  It's assumed that these classes exist and provide getters/setters for the attributes described.  This is not a requirement - Popov will use reflection to set any public/protected/private properties defined.
 
 Each example below adds to the previous one.
 
 ### Basic ###
 
-Let's assume we have users and groups, and we need to generate fake instances of each.  The example below defines two pools of objects with a preset number of instances in each.  Here we will generate 100 users and 50 groups
+Let's assume we have users and groups, and we need to generate fake instances of each.  The example below defines two pools of objects with a preset number of instances in each.  When you define a pool, you provide the fully qualified class name (FQCN) to be used when creating the objects, and an option number of instances to be created when the pool is initialized.  Here we will define pools that generate 100 users and 20 groups:
 
 ```php
 <?php
@@ -37,36 +43,60 @@ use League\FactoryMuffin\Faker\Facade as Faker;
 // Returns an instance of `GPS\Popov\Factory`
 $factory = Factory::instance();
 
-// Define a pool of 100 users; `Factory::definePool` returns an instance of `GPS\Popov\Definition`
+// Define a pool of 100 users; `Factory::definePool` returns an instance 
+// of `GPS\Popov\Definition`.  Defining a pool creates and stores an instance 
+// of `GPS\Popov\Pool` in the factory.
 $factory->definePool('App\User', 100)->setAttrs([
-  //use the Faker facade to easily wrap calls to faker in closures
+
+  //use the Faker facade to easily wrap calls to faker in closures...
   'firstName' => Faker::firstName(),
   'lastName' => Faker::lastName(),
   
-  // or set explicit values, which will be the same for all objects
+  // ... or set explicit values, which will be the same for all objects
   'enabled' => true,
   
-  // or define custom closures to be called
+  // ... or reference any callable
+  'address' => 'Some\Class::generateAddress',
+  
+  // ... or define custom closures to be called. Closures will receive the 
+  // instance of the object that is being created
   'fullName' => function($user) {
     return $user->getFirstName().' '.$user->getLastName();
   }
 ]);
 
-// Define a pool of 50 groups
-$factory->definePool('App\Group', 50)->setAttrs([
+// Define a pool of 20 groups
+$factory->definePool('App\Group', 20)->setAttrs([
   'number' => Faker::randomNumber()
 ]);
 
-// You can retrieve generated objects by accessing the created pools directly...
+//  You can retrieve generated objects by accessing the created pools 
+// directly...
 $user1 = $factory->getPool('App\User')->fetchRandom();
 $group1 = $factory->getPool('App\Group')->fetchRandom();
 
-// ... or you can use the wrapper methods on the factory
+// ... or you can use the wrapper methods on the factory to interact with the
+// underlying pool instances
 $user2 = $factory->fetchRandom('App\User');
 $group2 = $factory->fetchRandom('App\Group');
 ```
 
-Once you retrieve an object from the factory, the factory will initialize all defined pools in the order in which they were defined.
+The first time an object is retrieved from the factory, the factory will initialize all defined pools in the order in which they were defined.
+
+You can also define pools with an alias.  Doing this lets you avoid having to use the FQCN to reference the pool, but it also gives you the option of creating more than one pool for the same class if you need them to be configured differently.
+
+```php
+<?php
+
+//...
+
+$factory->definePool('User:MyApp\Models\User')->setAttrs([
+  // ...
+]);
+
+$pool = $factory->getPool('User');
+
+```
 
 ### Nesting ###
 
@@ -83,12 +113,19 @@ $factory->definePool('App\User', 100)->setAttrs([
   'preferences' => Factory::create('App\AccountPrefs')
 ]);
 
-// Note that we don't define a starting number for the pool.  In this case there is no need
-// since an instance will just be created any time a user is created
-$factory->definePool('App\AccountPrefs)->setAttrs([
+// Note that we don't define a starting number for the pool.  In this case 
+// there is no need since an instance will just be created any time a user is 
+// created
+$factory->definePool('App\AccountPrefs')->setAttrs([
   'allowEmails' => true,
-  ''
 ]);
+
+// the fetched user should contain the nested object
+$allow = $factory
+  ->fetchRandom('App\User')
+  ->getPreferences()
+  ->getAllowEmails()
+;
 
 ```
 
@@ -127,11 +164,43 @@ $factory
 
 ### Hooks ###
 
-  TODO...
+Popov also provides a way to call a callback after each object has been created, and also after an entire pool has been initialized.
+
+```php
+
+//...
+
+$factory
+  ->definePool('App\User')
+  ->setAttrs([
+    // ...
+  ])
+  ->setRefs([
+    // ...
+  ])
+  ->after(function($user) {
+    // this will be called for each user after it's been created
+    
+    $user->doSomething();
+  })
+;
+
+$factory
+  ->getPool('App\User')
+  ->after(function($pool) {
+    // this will be called after the pool is
+    // initialized
+    foreach($pool->fetchAll() as $obj) {
+      // ... do something
+    }
+  })
+;
+
+```
 
 ### Hard-coded objects ###
 
-You may want 50 random objects in a pool, but you may also want a few objects that you can reference in tests which are defined explicitly by you, so you know up front what to expect.  Luckily that's easy as well.  If you have defined a pool, you can manually create new instances regardless of whether or not it will be automatically populated with a preset number.  Any manually created instances will just be added to the pool.
+You may want 50 random objects in a pool, but you may also want a few objects that you can reference in tests which are defined explicitly by you, so you know up front what to expect.  If you have defined a pool, you can manually create new instances regardless of whether or not it will be automatically populated with a preset number.  Any manually created instances will just be added to the pool.
 
 This has an important implication though - if you want to create a few explicit objects, you should do that *after* you have defined all of your pools.  Manual creation of an object will trigger initialization of all defined pools.
 
@@ -140,13 +209,53 @@ You can create a specific object by overriding the definition at create time:
 ```php
 <?php
 
-//... todo doc
+//... define some pools
+
+// create a hard coded user... any attributes you provide
+// will be merged with the existing attributes from the pool
+$user = $factory->create('App\User', [
+  'firstName' => 'Foobert',
+  'lastName' => 'Bartleby',
+  'preferences' => Factor::create('App\AccountPrefs', [
+    'allowEmail' => false
+  ])
+]);
 
 ```
 
 ### Example with Persistence ###
 
-  TODO...
+Dealing with persistence can be fairly strait forward if you know the requirements for your app.  While Popov doesn't provide this out of the box, below is a simple example for how it could be done in an app that uses Doctrine.
+
+```
+<?php
+// ...
+
+$factory->definePool('App\User', 100)->setAttrs([/* ... */]);
+$factory->definePool('App\Group', 20)->setAttrs([/* ... */]);
+$factory->definePool('App\Transaction', 50)->setAttrs([/* ... */]);
+
+// ... maybe hard-code some example fixtures
+
+// assuming we know that certain objects should be persisted in a certain order...
+$persistOrder = [
+  'App\User',
+  'App\Group',
+  'App\Transaction'
+];
+
+// use doctrine to persist each object in each pool
+// in the needed order
+foreach ($persistOrder as $poolName) {
+  $pool = $factory->getPool($poolName);
+  foreach ($pool->fetchAll() as $obj) {
+    $doctrineManager->persist($obj);
+  }
+
+  $doctrineManager->flush();
+}
+
+```
 
 ## Contributing ##
 
@@ -154,4 +263,4 @@ Contributions are certainly welcome - just please adhere to the [PSR] coding sta
 
 ### Testing ###
 
-Run the tests with ``
+Run the tests with `vendor/bin/phpunit`.

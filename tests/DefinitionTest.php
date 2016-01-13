@@ -26,8 +26,22 @@ class DefinitionTest extends \PHPUnit_Framework_TestCase
         $this->assertSame('foo', $instance->foo);
         $this->assertSame('bar', $instance->getBar());
     }
-
+    
     public function testCreateWithCallable()
+    {
+        $def = new Definition('GPS\Popov\Tests\Example');
+        $def->setAttrs([
+            'foo' => 'GPS\Popov\Tests\return_foo',
+            'bar' => 'GPS\Popov\Tests\Returner::returnBar',
+        ]);
+
+        $instance = $def->create();
+        $this->assertTrue($instance instanceof Example);
+        $this->assertSame('foo', $instance->foo);
+        $this->assertSame('bar', $instance->getBar());
+    }
+
+    public function testCreateWithClosure()
     {
         $def = new Definition('GPS\Popov\Tests\Example');
         $def->setAttrs([
@@ -36,7 +50,6 @@ class DefinitionTest extends \PHPUnit_Framework_TestCase
         ]);
 
         $instance = $def->create();
-
         $this->assertTrue($instance instanceof Example);
         $this->assertSame('foo', $instance->foo);
         $this->assertSame('bar', $instance->getBar());
@@ -111,4 +124,17 @@ class Example
 
 class ExtendedExample extends Example
 {
+}
+
+function return_foo()
+{
+    return 'foo';
+}
+
+class Returner
+{
+    public static function returnBar()
+    {
+        return 'bar';
+    }
 }

@@ -76,18 +76,8 @@ class Definition
 
         $attrs = array_merge($this->attrs, $overrides);
 
-        foreach ($attrs as $field => $def) {
-            $rp = $this->reflProperties[$field];
-
-            if ($def instanceof \Closure) {
-                $value = $def($obj);
-
-                $rp->setValue($obj, $value);
-            } else {
-                $rp->setValue($obj, $def);
-            }
-        }
-
+        $this->applyAttributes($obj, $attrs);
+        
         return $obj;
     }
 
@@ -100,17 +90,7 @@ class Definition
 
     public function resolveReferences($obj)
     {
-        foreach ($this->refs as $field => $def) {
-            $rp = $this->reflProperties[$field];
-
-            if ($def instanceof \Closure) {
-                $value = $def($obj);
-
-                $rp->setValue($obj, $value);
-            } else {
-                $rp->setValue($obj, $def);
-            }
-        }
+        $this->applyAttributes($obj, $this->refs);        
     }
 
     public function finish($obj)
@@ -152,6 +132,23 @@ class Definition
         foreach ($reflClass->getProperties() as $prop) {
             $prop->setAccessible(true);
             $props[$prop->getName()] = $prop;
+        }
+    }
+    
+    private function applyAttributes($obj, $attrs)
+    {
+        foreach ($attrs as $field => $def) {
+            $rp = $this->reflProperties[$field];
+
+            if ($def instanceof \Closure) {
+                $value = $def($obj);
+
+                $rp->setValue($obj, $value);
+            } else if (is_callable($def)) {
+                $rp->setValue($obj, call_user_func($def));
+            } else {
+                $rp->setValue($obj, $def);
+            }
         }
     }
 }
