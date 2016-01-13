@@ -235,7 +235,7 @@ You can create a specific object by overriding the definition at create time:
 $user = $factory->create('App\User', [
   'firstName' => 'Foobert',
   'lastName' => 'Bartleby',
-  'preferences' => Factor::create('App\AccountPrefs', [
+  'preferences' => Factory::create('App\AccountPrefs', [
     'allowEmail' => false
   ])
 ]);
@@ -246,8 +246,9 @@ $user = $factory->create('App\User', [
 
 Dealing with persistence can be fairly strait forward if you know the requirements for your app.  While Popov doesn't provide this out of the box, below is a simple example for how it could be done in an app that uses Doctrine.
 
-```
+```php
 <?php
+
 // ...
 
 $factory->definePool('App\User', 100)->setAttrs([/* ... */]);
