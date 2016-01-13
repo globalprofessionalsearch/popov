@@ -86,7 +86,7 @@ class Factory
 
         return $this->getPool($name)->fetchMultipleBy($field, $value, $max);
     }
-    
+
     public function fetchMatching($name, $callable, $max = null)
     {
         $this->initialize();

@@ -26,7 +26,7 @@ class DefinitionTest extends \PHPUnit_Framework_TestCase
         $this->assertSame('foo', $instance->foo);
         $this->assertSame('bar', $instance->getBar());
     }
-    
+
     public function testCreateWithCallable()
     {
         $def = new Definition('GPS\Popov\Tests\Example');

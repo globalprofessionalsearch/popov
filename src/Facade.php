@@ -3,7 +3,7 @@
 namespace GPS\Popov;
 
 /**
- * A convenience class to use in fixture generation to 
+ * A convenience class to use in fixture generation to
  * wrap any calls to the factory in a closure.
  */
 class Facade

@@ -15,9 +15,9 @@ class Definition
     private $after;
     private $factory;
     private $reflProperties;
-    
+
     /**
-     * 
+     *
      */
     public function __construct($class, $attrs = [], $constructor = null)
     {
@@ -28,7 +28,7 @@ class Definition
             $this->constructor = function () use ($class) { return new $class(); };
         }
     }
-    
+
     public function setFactory($factory)
     {
         $this->factory = $factory;
@@ -77,7 +77,7 @@ class Definition
         $attrs = array_merge($this->attrs, $overrides);
 
         $this->applyAttributes($obj, $attrs);
-        
+
         return $obj;
     }
 
@@ -90,7 +90,7 @@ class Definition
 
     public function resolveReferences($obj)
     {
-        $this->applyAttributes($obj, $this->refs);        
+        $this->applyAttributes($obj, $this->refs);
     }
 
     public function finish($obj)
@@ -134,7 +134,7 @@ class Definition
             $props[$prop->getName()] = $prop;
         }
     }
-    
+
     private function applyAttributes($obj, $attrs)
     {
         foreach ($attrs as $field => $def) {
@@ -144,7 +144,7 @@ class Definition
                 $value = $def($obj);
 
                 $rp->setValue($obj, $value);
-            } else if (is_callable($def)) {
+            } elseif (is_callable($def)) {
                 $rp->setValue($obj, call_user_func($def));
             } else {
                 $rp->setValue($obj, $def);

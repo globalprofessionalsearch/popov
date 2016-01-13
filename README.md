@@ -30,7 +30,7 @@ The examples below show defining pools of fictional classes that may be in an ap
 
 Each example below adds to the previous one.
 
-### Basic ###
+### Defining Pools ###
 
 Let's assume we have users and groups, and we need to generate fake instances of each.  The example below defines two pools of objects with a preset number of instances in each.  When you define a pool, you provide the fully qualified class name (FQCN) to be used when creating the objects, and an option number of instances to be created when the pool is initialized.  Here we will define pools that generate 100 users and 20 groups:
 
@@ -96,6 +96,25 @@ $factory->definePool('User:MyApp\Models\User')->setAttrs([
 
 $pool = $factory->getPool('User');
 
+```
+
+### Retrieving Objects ###
+
+Once you have defined pools you can fetch created objects by using the api exposed by the `GPS\Popov\Pool`.  You can either fetch the pool directly from the factory, or use the wrapper methods provided by the factory.
+
+The pools provide a few ways to fetch objects:
+
+```php
+$obj = $factory->getPool('App\User')->fetchRandom();
+$objs = $factory->getPool('App\User')->fetchMultipleRandom();
+$obj = $factory->getPool('App\User')->fetchBy('firstName', 'Foobert');
+$objs = $factory->getPool('App\User')->fetchMultipleBy('isEnabled', true);
+$objs = $factory->getPool('App\User')->fetchMatching(function ($obj) {
+  // if the callable returns true, this object will be added 
+  // to the returned set
+  return in_array('Foobert', ['Alice','Bob', 'Foobert']);
+});
+$objs = $factory->getPool('App\User')->fetchAll();
 ```
 
 ### Nesting ###
